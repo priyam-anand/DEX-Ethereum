@@ -2,11 +2,12 @@
 pragma solidity ^0.8.13;
 
 import {IFactory} from "./Interfaces/IFactory.sol";
+import {Pool} from "./Pool.sol";
 
 contract Factory is IFactory {
     address public owner;
     address public pool;
-    uint256 public tokenId;
+    uint256 public poolId;
     mapping(address => address) tokenToPool;
     mapping(address => address) poolToToken;
     mapping(uint256 => address) idToToken;
@@ -15,7 +16,7 @@ contract Factory is IFactory {
     string invalidAddress = "Factory: Invalid Address";
 
     constructor() {
-        tokenId = 0;
+        poolId = 0;
         owner = msg.sender;
     }
 
@@ -36,11 +37,22 @@ contract Factory is IFactory {
         return true;
     }
 
-    function createPool(address _token)
-        external
-        poolSet
-        returns (address)
-    {}
+    function createPool(address _token) external poolSet returns (address) {
+        require(whitelist[_token], "Factory: Not whitelisted");
+        require(_token != address(0), invalidAddress);
+        require(pool != address(0), "Factory: Pool template not set");
+        require(
+            tokenToPool[_token] == address(0),
+            "Factory: Pool with same token exist"
+        );
+        Pool _pool = new Pool(_token);
+        tokenToPool[_token] = address(_pool);
+        poolToToken[address(_pool)] = _token;
+        poolId++;
+        idToToken[poolId] = _token;
+        emit Newpool(_token, address(_pool));
+        return address(_pool);
+    }
 
     // GETTERS
     function getPool(address _token) external view returns (address) {
