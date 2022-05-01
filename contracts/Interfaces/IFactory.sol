@@ -2,19 +2,19 @@
 pragma solidity ^0.8.13;
 
 interface IFactory {
-    event ExchangeSet(address indexed from, address indexed to);
+    event PoolSet(address indexed from, address indexed to);
     event Whitelist(address indexed token);
-    event NewExchange(address indexed token, address indexed exchange);
+    event Newpool(address indexed token, address indexed pool);
 
-    function setExchange(address _exchange) external returns (bool);
+    function setPool(address _pool) external returns (bool);
 
     function whitelistToken(address _token) external returns (bool);
 
-    function createExchange(address _token) external returns (address);
+    function createPool(address _token) external returns (address);
 
-    function getExchange(address _token) external view returns (address);
+    function getPool(address _token) external view returns (address);
 
-    function getToken(address _exchange) external view returns (address);
+    function getToken(address _pool) external view returns (address);
 
     function getTokenWihId(uint256 _token_id) external view returns (address);
 }

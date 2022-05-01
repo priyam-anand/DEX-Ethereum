@@ -6,8 +6,7 @@ import {IFactory} from "./Interfaces/IFactory.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-abstract contract Pool is IPool, ERC20 {
-    address private factoryAddress;
+contract Pool is IPool, ERC20 {
     IERC20 token;
     IFactory factory;
 
@@ -133,5 +132,145 @@ abstract contract Pool is IPool, ERC20 {
 
         emit EthPurchase(msg.sender, tokenRequired, ethBought);
         return tokenRequired;
+    }
+
+    function tokenToTokenSwapInput(
+        uint256 tokensSold,
+        uint256 minTokensBought,
+        uint256 deadline,
+        address tokenAddr
+    ) external returns (uint256) {
+        require(
+            deadline > block.timestamp && minTokensBought > 0 && tokensSold > 0,
+            invalidInput
+        );
+        address poolAddress = factory.getPool(tokenAddr);
+        require(
+            poolAddress != address(this) && poolAddress != address(0),
+            "Pool: Invalid token address"
+        );
+        uint256 tokenReserve = token.balanceOf(address(this));
+        uint256 ethReserve = address(this).balance;
+        uint256 ethBought = getInputPrice(tokensSold, tokenReserve, ethReserve);
+        token.transferFrom(msg.sender, address(this), tokensSold);
+        uint256 tokensBought = IPool(poolAddress).ethToTokenSwapInput{
+            value: ethBought
+        }(minTokensBought, deadline);
+        ERC20(tokenAddr).transfer(msg.sender, tokensBought);
+        emit EthPurchase(msg.sender, tokensSold, ethBought);
+
+        return tokensBought;
+    }
+
+    function tokenToTokenSwapOutput(
+        uint256 tokensBought,
+        uint256 maxTokensSold,
+        uint256 deadline,
+        address tokenAddr
+    ) external returns (uint256) {
+        require(
+            deadline > block.timestamp && maxTokensSold > 0 && tokensBought > 0,
+            invalidInput
+        );
+        address poolAddress = factory.getPool(tokenAddr);
+        require(
+            poolAddress != address(this) && poolAddress != address(0),
+            "Pool: Invalid token address"
+        );
+
+        uint256 ethBought = IPool(poolAddress).getEthToTokenOutputPrice(
+            tokensBought
+        );
+        uint256 tokenReserve = token.balanceOf(address(this));
+        uint256 ethReserve = address(this).balance;
+        uint256 tokensSold = getOutputPrice(
+            ethBought,
+            tokenReserve,
+            ethReserve
+        );
+        require(maxTokensSold >= tokensSold, "Pool: Yield too low");
+        token.transferFrom(msg.sender, address(this), tokensSold);
+        IPool(poolAddress).ethToTokenSwapOutput{value: ethBought}(
+            tokensBought,
+            deadline
+        );
+        ERC20(tokenAddr).transfer(msg.sender, tokensBought);
+        emit EthPurchase(msg.sender, tokensSold, ethBought);
+        return tokensSold;
+    }
+
+    function addLiquidity(
+        uint256 min_liquidity,
+        uint256 max_tokens,
+        uint256 deadline
+    ) external payable returns (uint256) {}
+
+    function removeLiquidity(
+        uint256 amount,
+        uint256 min_eth,
+        uint256 min_tokens,
+        uint256 deadline
+    ) external returns (uint256, uint256) {}
+
+    function getEthToTokenInputPrice(uint256 ethSold)
+        external
+        view
+        returns (uint256)
+    {
+        require(ethSold > 0);
+        uint256 tokenReserve = token.balanceOf(address(this));
+        uint256 tokensBought = getInputPrice(
+            ethSold,
+            address(this).balance,
+            tokenReserve
+        );
+        return tokensBought;
+    }
+
+    function getEthToTokenOutputPrice(uint256 tokensBought)
+        external
+        view
+        returns (uint256)
+    {
+        require(tokensBought > 0);
+        uint256 tokenReserve = token.balanceOf(address(this));
+        uint256 ethSold = getOutputPrice(
+            tokensBought,
+            address(this).balance,
+            tokenReserve
+        );
+        return ethSold;
+    }
+
+    function getTokenToEthInputPrice(uint256 tokensSold)
+        external
+        view
+        returns (uint256)
+    {
+        require(tokensSold > 0);
+        uint256 tokenReserve = token.balanceOf(address(this));
+        uint256 ethBought = getInputPrice(
+            tokensSold,
+            tokenReserve,
+            address(this).balance
+        );
+        return ethBought;
+    }
+
+    function getTokenToEthOutputPrice(uint256 ethBought)
+        external
+        view
+        returns (uint256)
+    {
+        uint256 tokenReserve = token.balanceOf(address(this));
+        return getOutputPrice(ethBought, tokenReserve, address(this).balance);
+    }
+
+    function tokenAddress() external view returns (address) {
+        return address(token);
+    }
+
+    function factoryAddress() external view returns (address) {
+        return address(factory);
     }
 }

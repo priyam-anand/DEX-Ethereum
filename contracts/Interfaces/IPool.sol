@@ -60,7 +60,6 @@ interface IPool {
     function tokenToTokenSwapInput(
         uint256 tokens_sold,
         uint256 min_tokens_bought,
-        uint256 min_eth_bought,
         uint256 deadline,
         address token_addr
     ) external returns (uint256);
@@ -68,7 +67,6 @@ interface IPool {
     function tokenToTokenSwapOutput(
         uint256 tokens_bought,
         uint256 max_tokens_sold,
-        uint256 max_eth_sold,
         uint256 deadline,
         address token_addr
     ) external returns (uint256);

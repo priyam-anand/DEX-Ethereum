@@ -5,10 +5,10 @@ import {IFactory} from "./Interfaces/IFactory.sol";
 
 contract Factory is IFactory {
     address public owner;
-    address public exchange;
+    address public pool;
     uint256 public tokenId;
-    mapping(address => address) tokenToExchange;
-    mapping(address => address) exchangeToToken;
+    mapping(address => address) tokenToPool;
+    mapping(address => address) poolToToken;
     mapping(uint256 => address) idToToken;
     mapping(address => bool) public whitelist;
 
@@ -19,11 +19,11 @@ contract Factory is IFactory {
         owner = msg.sender;
     }
 
-    function setExchange(address _exchange) external onlyOwner returns (bool) {
-        require(_exchange != address(0), invalidAddress);
-        require(_exchange != exchange, invalidAddress);
-        emit ExchangeSet(exchange, _exchange);
-        exchange = _exchange;
+    function setPool(address _pool) external onlyOwner returns (bool) {
+        require(_pool != address(0), invalidAddress);
+        require(_pool != pool, invalidAddress);
+        emit PoolSet(pool, _pool);
+        pool = _pool;
 
         return true;
     }
@@ -36,19 +36,19 @@ contract Factory is IFactory {
         return true;
     }
 
-    function createExchange(address _token)
+    function createPool(address _token)
         external
-        exchangeSet
+        poolSet
         returns (address)
     {}
 
     // GETTERS
-    function getExchange(address _token) external view returns (address) {
-        return tokenToExchange[_token];
+    function getPool(address _token) external view returns (address) {
+        return tokenToPool[_token];
     }
 
-    function getToken(address _exchange) external view returns (address) {
-        return exchangeToToken[_exchange];
+    function getToken(address _pool) external view returns (address) {
+        return poolToToken[_pool];
     }
 
     function getTokenWihId(uint256 _id) external view returns (address) {
@@ -56,8 +56,8 @@ contract Factory is IFactory {
     }
 
     // MODIFIERS
-    modifier exchangeSet() {
-        require(exchange != address(0), "Factory: Exchange template not set");
+    modifier poolSet() {
+        require(pool != address(0), "Factory: pool template not set");
         _;
     }
 
