@@ -1,0 +1,26 @@
+{
+  "name": "dex-ethereum",
+  "version": "1.0.0",
+  "description": "A Decentralized Exchange (DEX) on top of Ethereum. Following the protocol of Uniswap. Having an Automatic Market Maker(AMM) implemented using the constant product theorem.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyam-anand/DEX-Ethereum.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/priyam-anand/DEX-Ethereum/issues"
+  },
+  "homepage": "https://github.com/priyam-anand/DEX-Ethereum#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
+    "truffle-contract-size": "^2.0.1"
+  }
+}
