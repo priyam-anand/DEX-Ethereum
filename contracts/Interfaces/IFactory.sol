@@ -2,6 +2,10 @@
 pragma solidity ^0.8.13;
 
 interface IFactory {
+    event ExchangeSet(address indexed from, address indexed to);
+    event Whitelist(address indexed token);
+    event NewExchange(address indexed token, address indexed exchange);
+
     function setExchange(address _exchange) external returns (bool);
 
     function whitelistToken(address _token) external returns (bool);

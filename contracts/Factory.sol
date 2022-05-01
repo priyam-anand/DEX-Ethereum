@@ -4,11 +4,6 @@ pragma solidity ^0.8.13;
 import {IFactory} from "./Interfaces/IFactory.sol";
 
 contract Factory is IFactory {
-
-    event ExchangeSet(address indexed from, address indexed to);
-    event Whitelist(address indexed token);
-    event NewExchange(address indexed token, address indexed exchange);
-
     address public owner;
     address public exchange;
     uint256 public tokenId;
