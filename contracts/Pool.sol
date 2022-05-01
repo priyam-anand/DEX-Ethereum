@@ -10,7 +10,7 @@ contract Pool is IPool, ERC20 {
     IERC20 token;
     IFactory factory;
 
-    string invalidInput = "Pool: INVALID_VALUE";
+    string invalidInput = "Pool: INVALID ARGUMENTS";
 
     constructor(address _tokenAddress)
         ERC20("Liquidity Provider Token", "LPT")
@@ -200,17 +200,87 @@ contract Pool is IPool, ERC20 {
     }
 
     function addLiquidity(
-        uint256 min_liquidity,
-        uint256 max_tokens,
+        uint256 minLiquidity,
+        uint256 maxTokens,
         uint256 deadline
-    ) external payable returns (uint256) {}
+    ) external payable returns (uint256) {
+        require(
+            deadline > block.timestamp && maxTokens > 0 && msg.value > 0,
+            invalidInput
+        );
+        uint256 totalLiquidity = totalSupply();
+
+        if (totalLiquidity > 0) {
+            require(minLiquidity > 0, "Pool: Minimum liquidity too low");
+            uint256 ethReserve = address(this).balance - msg.value;
+            uint256 tokenReserve = token.balanceOf(address(this));
+            uint256 tokensRequired = msg.value *
+                (tokenReserve / ethReserve) +
+                1;
+            uint256 liquidityMinted = msg.value * (totalLiquidity / ethReserve);
+
+            require(
+                maxTokens >= tokensRequired && liquidityMinted >= minLiquidity,
+                "Pool: Liquidty minted too low"
+            );
+
+            _mint(msg.sender, liquidityMinted);
+            token.transferFrom(msg.sender, address(this), tokensRequired);
+
+            emit AddLiquidity(msg.sender, msg.value, tokensRequired);
+            emit Transfer(address(0), msg.sender, liquidityMinted);
+            return liquidityMinted;
+        } else {
+            require(
+                address(factory) != address(0) &&
+                    address(token) != address(0) &&
+                    msg.value >= 1000000000,
+                invalidInput
+            );
+            require(
+                factory.getPool(address(token)) == address(this),
+                "Pool: Incorrect Pool-Token pair"
+            );
+            uint256 tokensRequired = maxTokens;
+            uint256 initialLiquidity = address(this).balance;
+            _mint(msg.sender, initialLiquidity);
+
+            token.transferFrom(msg.sender, address(this), tokensRequired);
+
+            emit AddLiquidity(msg.sender, msg.value, tokensRequired);
+            emit Transfer(address(0), msg.sender, initialLiquidity);
+            return initialLiquidity;
+        }
+    }
 
     function removeLiquidity(
         uint256 amount,
-        uint256 min_eth,
-        uint256 min_tokens,
+        uint256 minEth,
+        uint256 minTokens,
         uint256 deadline
-    ) external returns (uint256, uint256) {}
+    ) external returns (uint256, uint256) {
+        require(
+            amount > 0 &&
+                deadline > block.timestamp &&
+                minEth > 0 &&
+                minTokens > 0
+        );
+        uint256 totalLiquidity = totalSupply();
+        require(totalLiquidity > 0, "Pool: Liquidity too low");
+        uint256 tokenReserve = token.balanceOf(address(this));
+        uint256 ethReserve = address(this).balance;
+        uint256 ethAmount = amount * (ethReserve / totalLiquidity);
+        uint256 tokenAmount = amount * (tokenReserve / totalLiquidity);
+        require(ethAmount >= minEth && tokenAmount >= minTokens);
+
+        _burn(msg.sender, amount);
+
+        payable(msg.sender).transfer(ethAmount);
+        token.transfer(msg.sender, tokenAmount);
+        emit RemoveLiquidity(msg.sender, ethAmount, tokenAmount);
+        emit Transfer(msg.sender, address(0), amount);
+        return (ethAmount, tokenAmount);
+    }
 
     function getEthToTokenInputPrice(uint256 ethSold)
         external
