@@ -1,0 +1,14 @@
+* {
+  margin: 0px;
+  padding: 0px;
+  font-family: 'Inter custom', sans-serif;
+  cursor: default;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  background-image: linear-gradient(to bottom right, rgb(43 36 46), rgb(33 36 41)) !important;
+}

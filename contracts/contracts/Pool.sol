@@ -34,7 +34,12 @@ contract Pool is IPool, ERC20 {
         uint256 inputReserve,
         uint256 outputReserve
     ) public view returns (uint256) {
-        require(inputReserve > 0 && outputReserve > 0, invalidInput);
+        require(
+            inputReserve > 0 &&
+                outputReserve > 0 &&
+                outputReserve > output_amount,
+            invalidInput
+        );
         uint256 numerator = inputReserve * output_amount;
         uint256 denominator = outputReserve - output_amount;
         return (numerator / denominator) + 1;
@@ -211,7 +216,7 @@ contract Pool is IPool, ERC20 {
         uint256 totalLiquidity = totalSupply();
 
         if (totalLiquidity > 0) {
-            require(minLiquidity > 0, "Pool: Minimum liquidity too low");
+            require(minLiquidity > 0, "Pool: Minimum liquidity required too low");
             uint256 ethReserve = address(this).balance - msg.value;
             uint256 tokenReserve = token.balanceOf(address(this));
             uint256 tokensRequired = msg.value *

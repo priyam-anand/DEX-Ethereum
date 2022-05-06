@@ -1,0 +1,120 @@
+.navbar-wrapper {
+    width: 55vw;
+    margin-left: 45vw;
+    height: 10vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-tab-1 {
+    width: 160px;
+    height: 45px;
+    background-color: rgb(25 27 31);
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.pill {
+    padding: 0.6rem 1rem;
+    margin: 0px 5px;
+    color: rgb(195, 197, 203);
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.nav-active {
+    background-color: rgb(33, 36, 41);
+    color: white;
+}
+
+.navbar-right-wrapper {
+    display: flex;
+}
+
+.navbar-tab-2 {
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(25 27 31);
+    height: 45px;
+    border-radius: 16px;
+    margin-right: 3rem;
+    cursor: pointer;
+}
+
+.navbar-tab-2 img,
+.navbar-dropdown img {
+    border-radius: 50%;
+    width: 22px;
+    margin: 0px 8px;
+    cursor: pointer;
+}
+
+.navbar-tab-2 span .navbar-dropdown span {
+    margin: 0px 3px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.navbar-tab-2 svg {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.navbar-tab-3 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: rgb(25 27 31);
+    height: 45px;
+    border-radius: 18px;
+    margin-right: 2rem;
+}
+
+.navbar-bal {
+    padding: 0px 10px;
+    font-weight: 500;
+}
+
+.navbar-account {
+    background-color: rgb(33, 36, 41);
+    border-radius: 16px;
+    padding: 0.55rem 1rem;
+    margin-right: 5px;
+    font-weight: 500;
+}
+
+.navbar-dropdown {
+    margin-top: 2px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-color: rgb(25 27 31);
+    border-radius: 16px;
+}
+
+.navbar-network {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0rem 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 1rem 0.3rem;
+    border-radius: 14px;
+    cursor: pointer;
+
+}
+
+.navbar-dropdown-header {
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+}
