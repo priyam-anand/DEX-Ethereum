@@ -6,8 +6,6 @@ interface IFactory {
     event Whitelist(address indexed token);
     event Newpool(address indexed token, address indexed pool);
 
-    function setPool(address _pool) external returns (bool);
-
     function whitelistToken(address _token) external returns (bool);
 
     function createPool(address _token) external returns (address);

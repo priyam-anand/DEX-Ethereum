@@ -6,7 +6,6 @@ import {Pool} from "./Pool.sol";
 
 contract Factory is IFactory {
     address public owner;
-    address public pool;
     uint256 public poolId;
     mapping(address => address) tokenToPool;
     mapping(address => address) poolToToken;
@@ -20,15 +19,6 @@ contract Factory is IFactory {
         owner = msg.sender;
     }
 
-    function setPool(address _pool) external onlyOwner returns (bool) {
-        require(_pool != address(0), invalidAddress);
-        require(_pool != pool, invalidAddress);
-        emit PoolSet(pool, _pool);
-        pool = _pool;
-
-        return true;
-    }
-
     function whitelistToken(address _token) external onlyOwner returns (bool) {
         require(_token != address(0) && !whitelist[_token], invalidAddress);
         whitelist[_token] = true;
@@ -37,10 +27,9 @@ contract Factory is IFactory {
         return true;
     }
 
-    function createPool(address _token) external poolSet returns (address) {
+    function createPool(address _token) external returns (address) {
         require(whitelist[_token], "Factory: Not whitelisted");
         require(_token != address(0), invalidAddress);
-        require(pool != address(0), "Factory: Pool template not set");
         require(
             tokenToPool[_token] == address(0),
             "Factory: Pool with same token exist"
@@ -65,12 +54,6 @@ contract Factory is IFactory {
 
     function getTokenWihId(uint256 _id) external view returns (address) {
         return idToToken[_id];
-    }
-
-    // MODIFIERS
-    modifier poolSet() {
-        require(pool != address(0), "Factory: pool template not set");
-        _;
     }
 
     modifier onlyOwner() {

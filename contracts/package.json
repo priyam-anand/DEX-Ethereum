@@ -21,6 +21,7 @@
   "homepage": "https://github.com/priyam-anand/DEX-Ethereum#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/test-helpers": "^0.5.15",
     "truffle-contract-size": "^2.0.1"
   }
 }

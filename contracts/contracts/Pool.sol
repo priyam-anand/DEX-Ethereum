@@ -104,7 +104,11 @@ contract Pool is IPool, ERC20 {
         );
         uint256 tokenReserve = token.balanceOf(address(this));
         uint256 ethReserve = address(this).balance;
-        uint256 ethBought = getInputPrice(tokensSold, tokenReserve, ethReserve);
+        uint256 ethBought = getInputPrice(
+            tokensSold, 
+            tokenReserve, 
+            ethReserve
+        );
         require(ethBought >= minEth, "Pool: Eth yield too low");
 
         payable(msg.sender).transfer(ethBought);
@@ -156,7 +160,11 @@ contract Pool is IPool, ERC20 {
         );
         uint256 tokenReserve = token.balanceOf(address(this));
         uint256 ethReserve = address(this).balance;
-        uint256 ethBought = getInputPrice(tokensSold, tokenReserve, ethReserve);
+        uint256 ethBought = getInputPrice(
+            tokensSold, 
+            tokenReserve, 
+            ethReserve
+        );
         token.transferFrom(msg.sender, address(this), tokensSold);
         uint256 tokensBought = IPool(poolAddress).ethToTokenSwapInput{
             value: ethBought
