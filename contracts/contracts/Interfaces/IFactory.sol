@@ -14,5 +14,5 @@ interface IFactory {
 
     function getToken(address _pool) external view returns (address);
 
-    function getTokenWihId(uint256 _token_id) external view returns (address);
+    function getTokenWithId(uint256 _token_id) external view returns (address);
 }

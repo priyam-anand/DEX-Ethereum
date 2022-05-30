@@ -34,7 +34,7 @@ contract Factory is IFactory {
             tokenToPool[_token] == address(0),
             "Factory: Pool with same token exist"
         );
-        Pool _pool = new Pool(_token);
+        Pool _pool = new Pool(_token, address(this));
         tokenToPool[_token] = address(_pool);
         poolToToken[address(_pool)] = _token;
         poolId++;
@@ -52,7 +52,7 @@ contract Factory is IFactory {
         return poolToToken[_pool];
     }
 
-    function getTokenWihId(uint256 _id) external view returns (address) {
+    function getTokenWithId(uint256 _id) external view returns (address) {
         return idToToken[_id];
     }
 

@@ -12,10 +12,11 @@ contract Pool is IPool, ERC20 {
 
     string invalidInput = "Pool: INVALID ARGUMENTS";
 
-    constructor(address _tokenAddress)
+    constructor(address _tokenAddress, address _factoryAddress)
         ERC20("Liquidity Provider Token", "LPT")
     {
         token = IERC20(_tokenAddress);
+        factory = IFactory(_factoryAddress);
     }
 
     function getInputPrice(
@@ -104,11 +105,7 @@ contract Pool is IPool, ERC20 {
         );
         uint256 tokenReserve = token.balanceOf(address(this));
         uint256 ethReserve = address(this).balance;
-        uint256 ethBought = getInputPrice(
-            tokensSold, 
-            tokenReserve, 
-            ethReserve
-        );
+        uint256 ethBought = getInputPrice(tokensSold, tokenReserve, ethReserve);
         require(ethBought >= minEth, "Pool: Eth yield too low");
 
         payable(msg.sender).transfer(ethBought);
@@ -160,11 +157,7 @@ contract Pool is IPool, ERC20 {
         );
         uint256 tokenReserve = token.balanceOf(address(this));
         uint256 ethReserve = address(this).balance;
-        uint256 ethBought = getInputPrice(
-            tokensSold, 
-            tokenReserve, 
-            ethReserve
-        );
+        uint256 ethBought = getInputPrice(tokensSold, tokenReserve, ethReserve);
         token.transferFrom(msg.sender, address(this), tokensSold);
         uint256 tokensBought = IPool(poolAddress).ethToTokenSwapInput{
             value: ethBought
@@ -224,7 +217,10 @@ contract Pool is IPool, ERC20 {
         uint256 totalLiquidity = totalSupply();
 
         if (totalLiquidity > 0) {
-            require(minLiquidity > 0, "Pool: Minimum liquidity required too low");
+            require(
+                minLiquidity > 0,
+                "Pool: Minimum liquidity required too low"
+            );
             uint256 ethReserve = address(this).balance - msg.value;
             uint256 tokenReserve = token.balanceOf(address(this));
             uint256 tokensRequired = msg.value *
@@ -245,9 +241,7 @@ contract Pool is IPool, ERC20 {
             return liquidityMinted;
         } else {
             require(
-                address(factory) != address(0) &&
-                    address(token) != address(0) &&
-                    msg.value >= 1000000000,
+                address(factory) != address(0) && address(token) != address(0),
                 invalidInput
             );
             require(
