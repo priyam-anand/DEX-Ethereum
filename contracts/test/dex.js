@@ -298,8 +298,6 @@ contract("Factory", function (accounts) {
         tokens_sold: '2498',
         eth_bought: '500'
       });
-      console.log("eth Reserve", web3.utils.toNumber(await web3.eth.getBalance(pool1.address)));
-      console.log("token Reserve", web3.utils.toNumber(await token1.balanceOf(pool1.address)));
     })
   })
 
@@ -352,15 +350,69 @@ contract("Factory", function (accounts) {
         { from: accounts[4] }
       )
       assert(web3.utils.toNumber(await token2.balanceOf(accounts[4])) == 10891);
+    })
+  })
+
+  describe("Token to token swap with fixed output", () => {
+    it("should make exchange", async () => {
+      await token2.mint(accounts[8], 10000000, { from: accounts[8] });
+      await token2.approve(pool2.address, 10000, { from: accounts[8] });
+
+      const receipt = await pool2.tokenToTokenSwapOutput(
+        500,
+        10000,
+        Date.now(),
+        token1.address,
+        { from: accounts[8] }
+      );
+
+      const tokenBalance = web3.utils.toNumber(await token1.balanceOf(accounts[8]));
+      const tokensUsed = 10000000 - web3.utils.toNumber(await token2.balanceOf(accounts[8]));
+      assert(tokenBalance == 500);
+      assert(tokensUsed == 1080)
+
       console.log("eth bal 1", web3.utils.toNumber(await web3.eth.getBalance(pool1.address)));
       console.log("token bal 1", web3.utils.toNumber(await token1.balanceOf(pool1.address)));
       console.log("eth bal 2", web3.utils.toNumber(await web3.eth.getBalance(pool2.address)));
       console.log("token bal 2", web3.utils.toNumber(await token2.balanceOf(pool2.address)));
     })
-  })
-
-  describe("Token to token swap with fixed output", () => {
-
   });
+
+  describe("Remove Liquidity", () => {
+    it("should not remove liquidity if enough eth or tokens are not provided", async () => {
+      return await expectRevert(
+        pool1.removeLiquidity(
+          10000,
+          100000,
+          100000,
+          Date.now(),
+          { from: accounts[1] }
+        ),
+        "Pool : Liquidity return too low."
+      )
+    });
+
+    it("should remove liquidity, transfer tokens to the original owner, burn the liquidity tokens", async () => {
+      const intialTotalSupply = web3.utils.toNumber(await pool1.totalSupply());
+      const initalTokenBalance = web3.utils.toNumber(await token1.balanceOf(accounts[1]));
+      const initialEthSupply = web3.utils.toNumber(await web3.eth.getBalance(pool1.address));
+
+      await pool1.removeLiquidity(
+        1000,
+        500,
+        1000,
+        Date.now(),
+        { from: accounts[1] }
+      );
+
+      const finalTotalSupply = web3.utils.toNumber(await pool1.totalSupply());
+      const finalTokenBalance = web3.utils.toNumber(await token1.balanceOf(accounts[1]));
+      const finalEthSupply = web3.utils.toNumber(await web3.eth.getBalance(pool1.address));
+
+      console.log("difference in total supply", (intialTotalSupply - finalTotalSupply));
+      console.log("difference in tokenBalance", (finalTokenBalance - initalTokenBalance));
+      console.log("difference in eth balnce", initialEthSupply - finalEthSupply);
+    })
+  })
 
 })

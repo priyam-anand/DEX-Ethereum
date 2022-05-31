@@ -276,9 +276,12 @@ contract Pool is IPool, ERC20 {
         require(totalLiquidity > 0, "Pool: Liquidity too low");
         uint256 tokenReserve = token.balanceOf(address(this));
         uint256 ethReserve = address(this).balance;
-        uint256 ethAmount = amount * (ethReserve / totalLiquidity);
-        uint256 tokenAmount = amount * (tokenReserve / totalLiquidity);
-        require(ethAmount >= minEth && tokenAmount >= minTokens);
+        uint256 ethAmount = (amount * ethReserve) / totalLiquidity;
+        uint256 tokenAmount = (amount * tokenReserve) / totalLiquidity;
+        require(
+            ethAmount >= minEth && tokenAmount >= minTokens,
+            "Pool : Liquidity return too low"
+        );
 
         _burn(msg.sender, amount);
 
